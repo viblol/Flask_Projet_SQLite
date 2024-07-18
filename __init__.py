@@ -78,21 +78,18 @@ def enregistrer_client():
     return redirect('/consultation/')  # Rediriger vers la page d'accueil après l'enregistrement
 
 @app.route('/fiche_nom/', methods=['GET'])
-def recherche_client_par_nom():
-    nom = request.args.get('nom')
-    if not nom:
-        return jsonify({"message": "Nom non fourni"}), 400
-
-    conn = sqlite3.connect('database.db')
-    cursor = conn.cursor()
-    cursor.execute('SELECT * FROM clients WHERE nom = ?', (nom,))
-    data = cursor.fetchall()
-    conn.close()
-
-    if not data:
-        return jsonify({"message": "Aucun client trouvé avec ce nom"}), 404
-
-    return jsonify(data), 200
+def fiche_nom():
+    if 'username' in request.authorization and 'password' in request.authorization:
+        if request.authorization['username'] == 'user' and request.authorization['password'] == '12345':
+            name = request.args.get('name')
+            conn = get_db_connection()
+            client = conn.execute('SELECT * FROM clients WHERE name = ?', (name,)).fetchone()
+            conn.close()
+            if client is None:
+                return jsonify({'error': 'Client not found'}), 404
+            return jsonify({'id': client['id'], 'name': client['name'], 'email': client['email']})
+        return jsonify({'error': 'Unauthorized access'}), 401
+    return jsonify({'error': 'Authentication required'}), 401
                                                                                                                                        
 if __name__ == "__main__":
   app.run(debug=True)
