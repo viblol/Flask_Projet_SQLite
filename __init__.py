@@ -76,6 +76,19 @@ def enregistrer_client():
     conn.commit()
     conn.close()
     return redirect('/consultation/')  # Rediriger vers la page d'accueil après l'enregistrement
+
+@app.route('/fiche_nom/', methods=['GET'])
+def recherche_client_par_nom():
+    nom = request.args.get('nom')
+    if not nom:
+        return jsonify({"message": "Nom non fourni"}), 400
+
+    resultats = [client for client in clients if client['nom'].lower() == nom.lower()]
+
+    if not resultats:
+        return jsonify({"message": "Aucun client trouvé avec ce nom"}), 404
+
+    return jsonify(resultats), 200
                                                                                                                                        
 if __name__ == "__main__":
   app.run(debug=True)
