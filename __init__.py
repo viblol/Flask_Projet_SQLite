@@ -77,19 +77,15 @@ def enregistrer_client():
     conn.close()
     return redirect('/consultation/')  # Rediriger vers la page d'accueil après l'enregistrement
 
-@app.route('/fiche_nom/', methods=['GET'])
-def fiche_nom():
-    if 'username' in request.authorization and 'password' in request.authorization:
-        if request.authorization['username'] == 'user' and request.authorization['password'] == '12345':
-            name = request.args.get('name')
-            conn = get_db_connection()
-            client = conn.execute('SELECT * FROM clients WHERE name = ?', (name,)).fetchone()
-            conn.close()
-            if client is None:
-                return jsonify({'error': 'Client not found'}), 404
-            return jsonify({'id': client['id'], 'name': client['name'], 'email': client['email']})
-        return jsonify({'error': 'Unauthorized access'}), 401
-    return jsonify({'error': 'Authentication required'}), 401
+@app.route('/fiche_nom/<string:post_id>')
+def Readfiche_2(post_id):
+    conn = sqlite3.connect('database.db')
+    cursor = conn.cursor()
+    cursor.execute('SELECT * FROM clients WHERE nom like ?', (post_id,))
+    data = cursor.fetchall()
+    conn.close()
+    # Rendre le template HTML et transmettre les données
+    return render_template('read_data.html', data=data)
                                                                                                                                        
 if __name__ == "__main__":
   app.run(debug=True)
