@@ -83,12 +83,16 @@ def recherche_client_par_nom():
     if not nom:
         return jsonify({"message": "Nom non fourni"}), 400
 
-    resultats = [client for client in clients if client['nom'].lower() == nom.lower()]
+    conn = sqlite3.connect('database.db')
+    cursor = conn.cursor()
+    cursor.execute('SELECT * FROM clients WHERE nom = ?', (nom,))
+    data = cursor.fetchall()
+    conn.close()
 
-    if not resultats:
+    if not data:
         return jsonify({"message": "Aucun client trouvé avec ce nom"}), 404
 
-    return jsonify(resultats), 200
+    return jsonify(data), 200
                                                                                                                                        
 if __name__ == "__main__":
   app.run(debug=True)
